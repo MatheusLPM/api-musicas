@@ -1,15 +1,14 @@
-[project]
+[tool.poetry]
 name = "api-musicas"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Matheus Lourenço",email = "matheus.lourenco@ipeweb.com.br"}
+    {name = "Matheus Lourenço", email = "matheus.lourenco@ipeweb.com.br"}
 ]
-readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-]
-
+dependencies = []
+packages = []
+package-mode = false  # Desativa o modo pacote
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
