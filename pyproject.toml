@@ -5,10 +5,11 @@ description = ""
 authors = [
     {name = "Matheus Lourenço", email = "matheus.lourenco@ipeweb.com.br"}
 ]
-requires-python = ">=3.12"
-dependencies = []
 packages = []
 package-mode = false  # Desativa o modo pacote
+
+[tool.poetry.dependencies]
+python = ">=3.12"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
