@@ -6,7 +6,7 @@ class Artista(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False, unique=True)
     nacionalidade = db.Column(db.String(50))
-    musicas = db.relationship('Musica', backref='artista', lazy=True)
+    musicas = db.relationship("Musica", back_populates="artista")
     
     def to_dict(self):
         return {

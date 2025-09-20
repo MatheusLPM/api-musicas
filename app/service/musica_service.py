@@ -33,3 +33,5 @@ class MusicaService:
     
     def deletar_musica_existente(self, musica_id):
         return self.musica_repo.deletar_musica(musica_id)
+    def get_musicas_by_gravadora(self, id_gravadora):
+        return self.musica_repo.listar_todas(id_gravadora=id_gravadora)

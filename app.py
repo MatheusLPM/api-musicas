@@ -8,9 +8,11 @@ from app.config.db_config import db, db_manager
 
 from app.repositories.musica_repository import MusicaRepository
 from app.repositories.artista_repository import ArtistaRepository
+from app.repositories.gravadora_repository import GravadoraRepository
 from app.models.musica import Musica 
 from app.service.musica_service import MusicaService
 from app.service.artista_service import ArtistaService
+from app.service.gravadora_service import GravadoraService
 
 app = Flask(__name__)
 
@@ -22,6 +24,7 @@ port = 3306
 database = "apimusica"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///music.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db_manager.init_app(app)
@@ -34,6 +37,10 @@ musica_service = MusicaService(musica_repo)
 
 artista_repo = ArtistaRepository()
 artista_service = ArtistaService(artista_repo)
+
+gravadora_repo = GravadoraRepository()
+gravadora_service = GravadoraService(gravadora_repo)
+
 
 # @app.route("/musicas", methods=["GET"])
 # def get_musicas():
@@ -59,6 +66,13 @@ def get_musicas():
         album=album
     )
     return jsonify(musicas)
+
+@app.route("/musicas/gravadora/<int:id_gravadora>", methods=["GET"])
+def get_musicas_by_gravadora(id_gravadora):
+    musica = musica_service.get_musicas_by_gravadora(id_gravadora)
+    if musica:
+        return jsonify(musica), 200
+    return jsonify({"erro": "Músicas não encontrada"}), 404
 
 @app.route("/musicas/<int:id>", methods=["GET"])
 def get_musica_by_id(id):
@@ -136,6 +150,64 @@ def get_artistas():
     artistas = artista_service.obter_todos_artistas()
     return jsonify(artistas), 200
 
+
+@app.route("/gravadora", methods=["POST"])
+def create_gravadora():
+    dados = request.json
+    if not dados:
+        return jsonify({"message": "Dados inválidos"}), 400
+    required_fields = ["nome", "pais_de_origem"]
+    if not all(field in dados for field in required_fields):
+        return jsonify({"message": "Campos obrigatórios faltando"}), 400
+    if not dados.get("pais_de_origem"):
+        return jsonify({"message": "País de Origem é obrigatório"}), 400
+    if not dados.get("nome"):
+        return jsonify({"message": "Nome do gravadora é obrigatório"}), 400
+    try:
+        gravadora_criada = gravadora_service.criar_nova_gravadora(dados)
+        return jsonify(gravadora_criada), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao criar gravadora: {e}")
+        return jsonify({"message": "Erro interno ao criar gravadora"}), 500
+
+
+@app.route("/gravadora", methods=["GET"])
+def get_gravadoras():
+    gravadoras = gravadora_service.obter_todas_gravadoras()
+    return jsonify(gravadoras), 200
+
+@app.route("/gravadora/<int:id>", methods=["PUT"])
+def update_gravadora(id):
+    dados = request.json
+    if not dados:
+        return jsonify({"message": "Dados inválidos"}), 400
+    if not dados.get("nome"):
+        return jsonify({"message": "Nome do gravadora é obrigatório"}), 400
+    if not dados.get("pais_de_origem"):
+        return jsonify({"message": "País de Origem é obrigatório"}), 400
+    try:
+        gravadora_atualizada = gravadora_service.atualizar_gravadora_existente(id, dados)
+        if gravadora_atualizada:
+            return jsonify(gravadora_atualizada)
+        return jsonify({"message": "Gravadora não encontrada"}), 404
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao atualizar gravadora: {e}")
+        return jsonify({"message": "Erro interno ao atualizar gravadora"}), 500
+
+@app.route("/gravadora/<int:id>", methods=["DELETE"])
+def delete_gravadora(id):
+    try:
+        if gravadora_service.deletar_gravadora_existente(id):
+            return jsonify({"message": "Gravadora deletada com sucesso"}), 200
+        return jsonify({"message": "Gravadora não encontrada"}), 404
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao deletar gravadora: {e}")
+        return jsonify({"message": "Erro interno ao deletar gravadora"}), 500
+    
+    
 if __name__ == "__main__":
     with app.app_context():
         db_manager.db.create_all()

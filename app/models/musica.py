@@ -5,12 +5,15 @@ class Musica(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(100), nullable=False)
-    # artista = db.Column(db.String(100), nullable=False)
-    id_artista = db.Column(db.String(100), db.ForeignKey('artistas.id'))
+    id_artista = db.Column(db.Integer, db.ForeignKey('artistas.id'))
     genero = db.Column(db.String(50))
     ano = db.Column(db.Integer)
     duracao = db.Column(db.Integer)
     album = db.Column(db.String(100))
+    id_gravadora = db.Column(db.Integer, db.ForeignKey('gravadora.id'))
+    
+    artista = db.relationship("Artista", back_populates="musicas")
+    gravadora = db.relationship("Gravadora", back_populates="musicas")
     
     def get_id(self):
         return self.id
@@ -26,7 +29,7 @@ class Musica(db.Model):
             "ano": self.ano,
             "duracao": self.duracao,
             "id_artista": self.artista.id if self.artista else None,
-            "artista_nome": self.artista.nome if self.artista else None
+            "id_gravadora": self.gravadora.id if self.gravadora else None
         }
         data["album"] = self.album
         return data
