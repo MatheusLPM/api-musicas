@@ -206,8 +206,7 @@ def delete_gravadora(id):
         db.session.rollback()
         print(f"Erro ao deletar gravadora: {e}")
         return jsonify({"message": "Erro interno ao deletar gravadora"}), 500
-    
-    
+
 if __name__ == "__main__":
     with app.app_context():
         db_manager.db.create_all()
